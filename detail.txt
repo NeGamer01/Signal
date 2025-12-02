@@ -1,0 +1,131 @@
+
+================================================================================
+DOKUMENTASI TEKNIS SISTEM: XAUUSD AI SIGNAL SCANNER PRO
+================================================================================
+
+1. IKHTISAR SISTEM (SYSTEM OVERVIEW)
+--------------------------------------------------------------------------------
+Aplikasi ini adalah Terminal Trading Cerdas berbasis Web (React/TypeScript) yang dirancang khusus untuk pasar Emas (XAU/USD). Sistem ini menggabungkan data pasar real-time, kalkulasi teknikal algoritmik (Hard Math), dan penalaran probabilistik Generative AI (Google Gemini) untuk menghasilkan sinyal trading presisi tinggi.
+
+Arsitektur Inti:
+- Frontend: React 19, Vite, Tailwind CSS via Canvas.
+- AI Engine: Google Gemini (2.5 Flash / Flash Lite / 3.0 Pro).
+- Charting: TradingView Lightweight Charts (Canvas rendering).
+- Data Stream: WebSocket (Binance & Twelve Data).
+
+================================================================================
+2. LAPISAN DATA & KALIBRASI (DATA LAYER & CALIBRATION)
+================================================================================
+
+A. Multi-Source Feed Aggregator
+   Sistem memiliki hierarki pengambilan data untuk memastikan uptime 99.9%:
+   1. Primary (Forex Real): Twelve Data WebSocket (XAU/USD). Data asli pasar Forex.
+   2. Secondary (Fallback): Binance WebSocket (XAUUSDT). Data Crypto-pegged gold.
+   3. Simulation: Mode simulasi matematis jika API Key tidak valid/limit habis.
+
+B. Broker Synchronization System (Exness/Broker Calibration)
+   Fitur unik untuk menyinkronkan harga feed global dengan harga broker lokal user.
+   - Masalah: Harga Binance/TwelveData sering selisih $0.5 - $2.0 dengan MT4/MT5 Exness.
+   - Solusi: Sistem "Price Offset Injection".
+   - Rumus: `DisplayPrice = RawFeedPrice + (UserInputPrice - RawFeedPrice)`
+   - Dampak: Semua kalkulasi indikator (EMA, Bollinger, dll) digeser secara matematis menggunakan offset ini sebelum dikirim ke AI. Ini memastikan AI menganalisis harga yang SAMA PERSIS dengan yang dilihat user di MT4.
+
+================================================================================
+3. MESIN INDIKATOR TEKNIKAL (MATH ENGINE)
+================================================================================
+
+Sebelum data dikirim ke AI, data mentah (OHLCV) diproses melalui `utils.ts` untuk menghasilkan turunan indikator teknikal. Kalkulasi dilakukan secara lokal di browser (Client-side computing) untuk latensi nol.
+
+A. Trend & Struktur Market
+   1. EMA 200 (Exponential Moving Average): 
+      - Fungsi: Menentukan Bias Jangka Panjang.
+      - Logika: Price > EMA200 = Bullish Bias.
+   2. Ichimoku Kinko Hyo (Komponen Tenkan & Kijun):
+      - Fungsi: Konfirmasi tren jangka menengah & Support dinamis.
+      - Logika: Price > Kijun-sen = Valid Buy Zone.
+   3. ADX (Average Directional Index) Periode 14:
+      - Fungsi: Filter Validitas Tren.
+      - Logika Akar: 
+        * Jika ADX < 20: Pasar Ranging/Sideways (AI dilarang memberi sinyal Follow Trend).
+        * Jika ADX > 25: Pasar Trending Kuat (Sinyal Breakout valid).
+
+B. Momentum & Osilator
+   1. RSI (Relative Strength Index) Periode 14:
+      - Fungsi: Deteksi Overbought (>70) / Oversold (<30).
+   2. Stochastic Oscillator (14, 3, 3):
+      - Fungsi: Timing entry presisi (trigger).
+   
+C. Volatilitas & Level Kunci
+   1. Bollinger Bands (20, 2):
+      - Fungsi: Mengukur volatilitas dinamis.
+      - Logika: Squeeze (penyempitan) menandakan ledakan harga akan datang.
+   2. ATR (Average True Range) Periode 14:
+      - Fungsi: Manajemen Risiko Otomatis.
+      - Rumus Stop Loss: `Entry ± (ATR * 1.5)`. Ini memastikan SL tidak terkena noise pasar wajar.
+   3. Pivot Points (Standard):
+      - Fungsi: Support/Resistance statis harian (R1, S1, Pivot).
+
+================================================================================
+4. KECERDASAN BUATAN (AI REASONING CORE)
+================================================================================
+
+Ini adalah otak utama sistem (`geminiService.ts`). AI tidak sekadar membaca indikator, tetapi melakukan penalaran konteks (Contextual Reasoning).
+
+A. Model Selection Matrix
+   User dapat memilih model otak yang digunakan:
+   1. Gemini 2.5 Flash: (Default) Seimbang antara kecepatan (1-2 detik) dan logika.
+   2. Gemini Flash Lite: (Scalper Mode) Kecepatan ekstrem (<1 detik), logika lebih sederhana.
+   3. Gemini 3.0 Pro: (Swing/Analyst Mode) Logika deep-reasoning, mampu mendeteksi pola kompleks tapi lebih lambat.
+
+B. Prompt Engineering Architecture (Sistem Instruksi)
+   Prompt yang dikirim ke Gemini dirancang dengan persona "Institutional Forex Analyst".
+
+   Aturan Logika (Hard Rules) yang ditanamkan ke AI:
+   
+   Rule #1: The Trend Filter
+   - Input: ADX Value.
+   - Instruksi: "JIKA ADX < 20, ABAIKAN semua sinyal trend-following (EMA Cross, dll). HANYA cari sinyal pembalikan (Reversal) di Bollinger Band luar."
+
+   Rule #2: The Confluence (Konfluensi)
+   - Instruksi: "Sinyal BUY valid HANYA JIKA minimal 3 syarat terpenuhi: Harga > EMA200 DAN RSI < 70 DAN Harga memantul di Pivot/Support."
+
+   Rule #3: Psychological Levels
+   - Instruksi: "Perhatikan angka bulat (Ex: 2650.00). Market Forex cenderung bereaksi di angka ini."
+
+   Rule #4: Risk Management Output
+   - AI Wajib menghitung TP dan SL berdasarkan ATR yang dikirim, bukan tebak-tebakan angka acak.
+   - Risk Reward Ratio minimal 1:1.5.
+
+C. Batch Processing
+   Untuk efisiensi, AI menganalisis 3 Timeframe (M1, M5, M15) sekaligus dalam SATU request API. Ini menghemat kuota API dan memastikan sinkronisasi analisa antar timeframe.
+
+================================================================================
+5. VISUALISASI & CHARTING (UI LAYER)
+================================================================================
+
+A. TradingView Lightweight Charts
+   - Implementasi: Menggunakan Canvas rendering untuk performa tinggi (60 FPS).
+   - Fitur Overlay:
+     * Entry Line (Garis Biru Putus-putus).
+     * Take Profit (Garis Hijau Solid).
+     * Stop Loss (Garis Merah Solid).
+   - Interaktif: Garis-garis ini digambar otomatis berdasarkan respons JSON dari AI.
+
+B. Signal Cards
+   - Menampilkan Confidence Score (%).
+   - Reasoning text: Penjelasan "Mengapa" AI mengambil posisi tersebut (Transparency AI).
+
+================================================================================
+6. ALUR DATA (DATA FLOW SUMMARY)
+================================================================================
+
+1. WebSocket menerima data tick (misal: 2650.50).
+2. Data masuk ke `App.tsx` -> Ditambah Offset User (misal +0.50) -> Jadi 2651.00.
+3. Data 2651.00 masuk ke `utils.ts` -> Hitung RSI, EMA, Bollinger, dll.
+4. Paket Data Lengkap (Price + Technicals) dikirim ke `geminiService.ts`.
+5. Gemini menganalisis berdasarkan Prompt Institusional.
+6. Output JSON diterima -> UI Update -> Garis Entry/TP/SL muncul di Chart.
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================

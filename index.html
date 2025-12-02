@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XAUUSD AI Signal Scanner Pro | Institutional Gold Analysis</title>
+    <meta name="description" content="Real-time institutional grade XAUUSD (Gold) technical analysis powered by Google Gemini AI. Features live signals, Ichimoku Cloud, and Broker Calibration." />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://xauusd-ai-scanner.vercel.app/" />
+    <meta property="og:title" content="XAUUSD AI Signal Scanner Pro" />
+    <meta property="og:description" content="Professional Gold Trading Assistant using Gemini 3.0 Pro AI. Live charts, audio alerts, and precise entry/exit signals." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&q=80&w=1200" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="XAUUSD AI Scanner Pro" />
+    <meta property="twitter:description" content="Dominate the Gold market with AI-powered insights." />
+
+    <!-- Favicon (SVG Data URI for Gold Coin/Chart) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23F59E0B' stroke='%23B45309' stroke-width='5'/%3E%3Cpath d='M25 65 L40 50 L55 60 L75 35' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='75' cy='35' r='4' fill='white'/%3E%3C/svg%3E" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              gray: {
+                850: '#1f2937',
+                900: '#111827',
+                950: '#0b0f19',
+              },
+              trade: {
+                buy: '#10b981', // Emerald 500
+                sell: '#ef4444', // Red 500
+                neutral: '#6b7280', // Gray 500
+              }
+            },
+            animation: {
+              'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #0b0f19;
+        color: #e5e7eb;
+      }
+      /* Custom scrollbar for dashboard feel */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111827; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #374151; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #4b5563; 
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "clsx": "https://aistudiocdn.com/clsx@^2.1.1",
+    "path": "https://aistudiocdn.com/path@^0.12.7",
+    "vite": "https://aistudiocdn.com/vite@^7.2.6",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
+    "lightweight-charts": "https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.mjs"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
